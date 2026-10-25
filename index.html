@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mein Wochenplaner</title>
+<title>Wochenplaner</title>
+<link rel="apple-touch-icon" href="icon.png">
 <style>
 :root{--bg:#f6f3ee;--card:#fffdf9;--ink:#2b2a33;--mute:#8a8794;--line:#e8e2d8;--acc:#e0694a;--acc2:#3f7d73;--gold:#e9a825;--today:#fff1ea;--shadow:0 2px 10px rgba(60,40,20,.08);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -146,7 +147,7 @@ button.wk.cur{background:var(--acc);color:#fff}
 .sc{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:6px 16px 8px;margin-bottom:12px}
 .sc h2{font-size:1rem;margin:12px 0 4px}
 .srow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px dashed var(--line)}
-.srow.col{flex-direction:column;align-items:stretch;gap:8px}
+.srow.stk{flex-direction:column;align-items:stretch;gap:8px}
 .srow small{display:block;color:var(--mute);font-size:.8rem;font-weight:400}
 .swt{width:52px;height:30px;min-height:30px;border-radius:30px;padding:0;position:relative;background:var(--line);border:0;flex:none;transition:background .2s}
 .swt i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
@@ -157,15 +158,16 @@ button.wk.cur{background:var(--acc);color:#fff}
 .pals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .pals button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;font-size:.75rem;min-height:64px}
 .pals button i{width:28px;height:28px;border-radius:50%}
-.pals button.sel{border:2px solid var(--ink)}
+.pals button.picked{border:2px solid var(--ink)}
 #vol{width:100%;accent-color:var(--acc)}
 .wipe.arm{background:#e8613a;border-color:#e8613a;color:#fff}
+.gear{font-size:1.4rem;width:48px;padding:0;flex:none;align-self:flex-start}
+.pals{grid-template-columns:repeat(4,minmax(0,1fr))}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 <canvas id="fx"></canvas>
-<nav class="tabs" id="tabs"><button data-tab="week"><span>📅</span>Woche</button><button data-tab="set"><span>⚙️</span>Einstellungen</button></nav>
 <script>
 const DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
 const MON=["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
@@ -206,7 +208,7 @@ function hero(){PASTS=[];
 function weekView(){
   const end=new Date(start);end.setDate(end.getDate()+6);const todayK=key(new Date());
   const gl=data.goals[key(start)]||[],gp=pct(gl);
-  let h=`<div class="top"><div><h1>Mein Wochenplaner</h1><div class="sub">${start.getDate()}. ${MON[start.getMonth()]} – ${end.getDate()}. ${MON[end.getMonth()]} ${end.getFullYear()}</div></div></div>
+  let h=`<div class="top"><div><h1>Mein Wochenplaner</h1><div class="sub">${start.getDate()}. ${MON[start.getMonth()]} – ${end.getDate()}. ${MON[end.getMonth()]} ${end.getFullYear()}</div></div><button class="gear" data-tab="set" aria-label="Einstellungen">⚙️</button></div>
   <div class="top"><div class="nav"><button data-w="-7" aria-label="Vorherige Woche">←</button><button data-w="0" class="primary">Heute</button><button data-w="7" aria-label="Nächste Woche">→</button></div><button class="kw" data-jump="1" aria-label="Datum auswählen">📅 Datum</button></div>
   ${hero()}${eventsCard()}`;
   for(let i=0;i<7;i++){
@@ -232,8 +234,6 @@ function render(){
   applyLook();
   const app=document.getElementById("app");
   app.innerHTML=view?(view.settings?settingsView():dayView()):weekView();
-  const tb=document.getElementById("tabs");tb.style.display=(view&&view.date)?"none":"flex";
-  tb.children[0].classList.toggle("on",!view);tb.children[1].classList.toggle("on",!!(view&&view.settings));
   const vi=viewInfo(),lv=lastView;lastView=vi;
   app.classList.remove("enter");
   if(!data.noAnim&&lv&&(lv.k!==vi.k||lv.t!==vi.t)){
@@ -374,19 +374,19 @@ function applyLook(){
 function settingsView(){
   const sc=data.scheme|0,md=data.mode||"auto";
   const sw=(k,on,label,sub)=>`<div class="srow"><div><b>${label}</b>${sub?`<small>${sub}</small>`:""}</div><button class="swt ${on?"on":""}" data-tg="${k}" role="switch" aria-checked="${on}" aria-label="${label}"><i></i></button></div>`;
-  return `<div class="top"><div><h1>Einstellungen</h1><div class="sub">Alles bleibt auf diesem Gerät</div></div></div>
+  return `<div class="top"><button data-tab="week">← Zurück</button></div><h1>Einstellungen</h1><div class="sub" style="margin-bottom:14px">Alles bleibt auf diesem Gerät</div>
 <section class="sc"><h2>🎨 Erscheinungsbild</h2>
-<div class="srow col"><b>Modus</b><div class="seg">${[["auto","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([v,n])=>`<button class="${md===v?"on":""}" data-mode="${v}">${n}</button>`).join("")}</div></div>
-<div class="srow col"><b>Farbe</b><div class="pals">${PAL.map((p,i)=>`<button class="${i===sc?"sel":""}" data-pal="${i}"><i style="background:${p.a}"></i>${p.n}</button>`).join("")}</div></div></section>
+<div class="srow stk"><b>Modus</b><div class="seg">${[["auto","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([v,n])=>`<button class="${md===v?"on":""}" data-mode="${v}">${n}</button>`).join("")}</div></div>
+<div class="srow stk"><b>Farbe</b><div class="pals">${PAL.map((p,i)=>`<button class="${i===sc?"picked":""}" data-pal="${i}"><i style="background:${p.a}"></i>${p.n}</button>`).join("")}</div></div></section>
 <section class="sc"><h2>🔊 Ton &amp; Effekte</h2>
 ${sw("mute",!data.mute,"Sound-Effekte")}
-<div class="srow col"><b>Lautstärke</b><input type="range" id="vol" min="0" max="100" value="${Math.round((data.vol==null?1:data.vol)*100)}"></div>
+<div class="srow stk"><b>Lautstärke</b><input type="range" id="vol" min="0" max="100" value="${Math.round((data.vol==null?1:data.vol)*100)}"></div>
 ${sw("noConfetti",!data.noConfetti,"Konfetti bei 100 %")}
 ${sw("noAnim",!data.noAnim,"Animationen","Sanfte Übergänge zwischen den Ansichten")}</section>
 <section class="sc"><h2>✨ Aufgaben</h2>
 ${sw("noAuto",!data.noAuto,"Emoji automatisch wählen","Passend zum Text deiner Aufgabe")}</section>
 <section class="sc"><h2>🗂️ Daten</h2>
-<div class="srow col"><button class="full wipe ${wipeArm?"arm":""}" data-wipe="1">${wipeArm?"Wirklich alles löschen? Nochmal tippen":"Alle Aufgaben &amp; Termine löschen"}</button><small>Deine Daten werden nur in diesem Browser gespeichert.</small></div></section>`;
+<div class="srow stk"><button class="full wipe ${wipeArm?"arm":""}" data-wipe="1">${wipeArm?"Wirklich alles löschen? Nochmal tippen":"Alle Aufgaben &amp; Termine löschen"}</button><small>Deine Daten werden nur in diesem Browser gespeichert.</small></div></section>`;
 }
 document.addEventListener("input",e=>{if(e.target.id==="vol"){data.vol=+e.target.value/100;save()}});
 document.addEventListener("change",e=>{if(e.target.id==="vol")snd("check")});
