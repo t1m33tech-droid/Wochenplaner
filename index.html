@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TEST 123</title>
+<title>Wochenplaner</title>
 <link rel="apple-touch-icon" href="icon.png">
 <style>
 :root{--bg:#f6f3ee;--card:#fffdf9;--ink:#2b2a33;--mute:#8a8794;--line:#e8e2d8;--acc:#e0694a;--acc2:#3f7d73;--gold:#e9a825;--today:#fff1ea;--shadow:0 2px 10px rgba(60,40,20,.08);
@@ -106,7 +106,7 @@ const sorted=l=>l.slice().sort((a,b)=>(a.tm||"99")>(b.tm||"99")?1:-1);
 function weekView(){
   const end=new Date(start);end.setDate(end.getDate()+6);const todayK=key(new Date());
   const gl=data.goals[key(start)]||[],gp=pct(gl);
-  let h=`<div class="top"><div><h1>Mein Wochenplaner</h1><div class="sub">${start.getDate()}. ${MON[start.getMonth()]} – ${end.getDate()}. ${MON[end.getMonth()]} ${end.getFullYear()}</div></div></div>
+  let h=`<div class="top"><div><h1>Antons Wochenplaner</h1><div class="sub">${start.getDate()}. ${MON[start.getMonth()]} – ${end.getDate()}. ${MON[end.getMonth()]} ${end.getFullYear()}</div></div></div>
   <div class="top"><div class="nav"><button data-w="-7" aria-label="Vorherige Woche">←</button><button data-w="0" class="primary">Heute</button><button data-w="7" aria-label="Nächste Woche">→</button></div></div>
   <button class="row goals" data-goals="1"><div class="mid"><b>Meine Woche</b><small>${gl.length?gl.filter(t=>t.d).length+" von "+gl.length+" erledigt":"Ziele für die ganze Woche"}</small><div class="bar"><i style="width:${gp}%"></i></div></div><span class="pct ${gp==100?"full":""}">${gp==100?"🏆":gp+"%"}</span><span class="chev">›</span></button>`;
   for(let i=0;i<7;i++){
